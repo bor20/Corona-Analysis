@@ -40,6 +40,7 @@ china_cases = []
 italy_cases = []
 us_cases = []
 spain_cases = []
+kenya_cases = []
 
 for i in dates:
     confirmed_sum = confirmed[i].sum()
@@ -65,6 +66,8 @@ for i in dates:
         confirmed_df[confirmed_df['Country/Region'] == 'US'][i].sum())
     spain_cases.append(
         confirmed_df[confirmed_df['Country/Region'] == 'Spain'][i].sum())
+    kenya_cases.append(
+        confirmed_df[confirmed_df['Country/Region'] == 'Kenya'][i].sum())
 
 
 days_since_1_22 = np.array([i for i in range(len(dates))]).reshape(-1, 1)
@@ -72,10 +75,10 @@ world_cases = np.array(world_cases).reshape(-1, 1)
 total_deaths = np.array(total_deaths).reshape(-1, 1)
 total_recovered = np.array(total_recovered).reshape(-1, 1)
 
-days_in_future = 30
+days_in_future = 1
 future_forcast = np.array(
     [i for i in range(len(dates)+days_in_future)]).reshape(-1, 1)
-adjusted_dates = future_forcast[:-30]
+adjusted_dates = future_forcast[:-1]
 
 start = '1/22/2020'
 start_date = datetime.datetime.strptime(start, '%m/%d/%Y')
@@ -126,8 +129,8 @@ linear_model = LinearRegression(normalize=True, fit_intercept=False)
 linear_model.fit(poly_X_train_confirmed, y_train_confirmed)
 test_linear_pred = linear_model.predict(poly_X_test_confirmed)
 linear_pred = linear_model.predict(poly_future_forcast)
-print('MAE:', mean_absolute_error(test_linear_pred, y_test_confirmed))
-print('MSE:', mean_squared_error(test_linear_pred, y_test_confirmed))
+print('MAE poly:', mean_absolute_error(test_linear_pred, y_test_confirmed))
+print('MSE poly:', mean_squared_error(test_linear_pred, y_test_confirmed))
 
 print(linear_model.coef_)
 plt.plot(test_linear_pred)
@@ -170,12 +173,13 @@ plt.plot(adjusted_dates, china_cases)
 plt.plot(adjusted_dates, italy_cases)
 plt.plot(adjusted_dates, us_cases)
 plt.plot(adjusted_dates, spain_cases)
+plt.plot(adjusted_dates, kenya_cases)
 
 
 plt.title('# of Coronavirus Cases', size=30)
 plt.xlabel('Days Since 1/22/2020', size=30)
 plt.ylabel('# of Cases', size=30)
-plt.legend(['China', 'Italy', 'US', 'Spain'], prop={'size': 20})
+plt.legend(['China', 'Italy', 'US', 'Spain', 'Kenya'], prop={'size': 20})
 plt.xticks(size=20)
 plt.yticks(size=20)
 plt.show()
@@ -194,7 +198,7 @@ plt.show()
 plt.figure(figsize=(16, 9))
 plt.plot(adjusted_dates, world_cases)
 plt.plot(future_forcast, linear_pred, linestyle='dashed', color='orange')
-plt.title('# of Coronavirus Cases Over Time', size=30)
+plt.title('10 day Covid19 infections Prediction', size=30)
 plt.xlabel('Days Since 1/22/2020', size=30)
 plt.ylabel('# of Cases', size=30)
 plt.legend(['Confirmed Cases', 'Polynomial Regression Predictions'],
